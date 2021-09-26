@@ -5,55 +5,62 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#define BUF_SIZE 512
-#define INP_PIPE_DIR "./ipipe"
-#define OUT_PIPE_DIR "./opipe"
+// #define DEV
+#ifdef DEV
+  #define INP_PIPE_DIR "./ipipe"
+  #define OUT_PIPE_DIR "./opipe"
+#else
+  #define INP_PIPE_DIR "/home/smdb/ipipe"
+  #define OUT_PIPE_DIR "/home/smdb/opipe"
+#endif
 
-#define err(mess) { fprintf(stderr,"Error: %s.\n", mess); exit(1); }
+#define BUF_SIZE 1024
+
+#define err(mess) {                              \
+  fprintf(stderr, "[Writer/Error] %s.\n", mess); \
+  exit(1);                                       \
+}
+
+
+int open_pipe(char *path) {
+  int fd;
+  if ( (fd = open(path, O_RDWR)) < 0) {
+    printf("[Writer] pipe \"%s\" not found, create new one.\n", path);
+    printf("[Writer] pipe mkfifo status: %d\n", mkfifo(path, 0666));
+    fd = open(path, O_RDWR);
+  }
+  printf("[Writer] open pipe \"%s\"\n", path);
+
+  return fd;
+}
+
 
 int main(int argc, char **argv) {
   char buf[BUF_SIZE];
+  memset(buf, '\0', BUF_SIZE);
   int fd, n;
-  char *path = INP_PIPE_DIR;
-  if (argc == 2 && strcmp(argv[0], "o")) {
-    path = OUT_PIPE_DIR;
+
+  if (argc != 2) {
+    err("Argment is incorrect");
+  } else if (strcmp(argv[1], "i") == 0) {
+    fd = open_pipe(INP_PIPE_DIR);
+  } else if (strcmp(argv[1], "o") == 0) {
+    fd = open_pipe(OUT_PIPE_DIR);
+  } else if (strcmp(argv[1], "s") == 0) {
+    fd = STDOUT_FILENO;
   }
-  printf("path is %s\n", path);
 
-  // unlink(path);
-  printf("%d\n", mkfifo(path, 0666));
-
-  if ( (fd = open(path, O_WRONLY)) < 0)
-    err("open")
-  printf("open %s\n", path);
-
-  while( (n = read(STDIN_FILENO, buf, BUF_SIZE) ) > 0) {
-    if ( write(fd, buf, n) != n) { 
-      err("write")
+  while( (n = read(STDIN_FILENO, buf, BUF_SIZE) ) >= 0) {
+    int d;
+    if ( (d=write(fd, buf, n)) != n) { 
+      err("write");
     }
+    memset(buf, '\0', BUF_SIZE);
   }
   
-  write(STDOUT_FILENO, "terminate\n", 10);
+  printf("[Writer] terminate\n");
   close(fd);
-
-  // FILE* fp;
-  // int n;
-  // if ( (fp = fopen("fifo_x", "r+")) == NULL)
-  //   err("open")
-
-  // while( feof(stdin) == 0 ) {
-  //   if ( fgets(buf, BUF_SIZE, stdin) == NULL)
-  //     err("read")
-
-  //   // printf("%s", buf);
-  //   fprintf(fp, "%s", buf);
-  //   fflush(fp);
-  //   // if ( fprintf(fp, "%s", buf) != n)
-  //   //   err("write")
-  // }
-  // fclose(fp);
 
   return 0;
 }
