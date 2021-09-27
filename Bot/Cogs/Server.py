@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from . import Utils
+from Utils import log, errlog
 
 INP_PIPE_DIR = "/home/smdb/ipipe"
 OUT_PIPE_DIR = "/home/smdb/opipe"

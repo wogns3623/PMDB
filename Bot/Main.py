@@ -6,7 +6,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
-import Utils
+from Utils import log, errlog
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -21,8 +21,8 @@ for filename in os.listdir("Cogs"):
 
 @app.event
 async def on_ready():
-    print_log(f"{app.user} has connected to Discord!")
-    print_log(f"{app.user.name}\n{app.user.id}\n=============")
+    log(f"{app.user} has connected to Discord!")
+    log(f"{app.user.name}\n{app.user.id}\n=============")
     await app.change_presence(
         status=discord.Status.online, activity=discord.Game("서버 관리")
     )
