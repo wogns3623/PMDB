@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-
 from Utils import log, errlog
 
 load_dotenv()

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     if ( write(STDOUT_FILENO, buf, n) != n) {
       perror("write");
     }
-    memset(buf, '\0', n);
+    memset(buf, '\0', BUF_SIZE);
   }
 
   printf("[reader] terminate\n");
