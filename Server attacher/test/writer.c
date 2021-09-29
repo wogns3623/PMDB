@@ -11,8 +11,8 @@
   #define INP_PIPE_DIR "./ipipe"
   #define OUT_PIPE_DIR "./opipe"
 #else
-  #define INP_PIPE_DIR "/home/smdb/ipipe"
-  #define OUT_PIPE_DIR "/home/smdb/opipe"
+  #define INP_PIPE_DIR "/tmp/smdb_ipipe"
+  #define OUT_PIPE_DIR "/tmp/smdb_opipe"
 #endif
 
 #define BUF_SIZE 1024
@@ -21,7 +21,6 @@
   fprintf(stderr, "[Writer/Error] %s.\n", mess); \
   exit(1);                                       \
 }
-
 
 int open_pipe(char *path) {
   int fd;

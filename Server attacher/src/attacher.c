@@ -19,11 +19,11 @@ open에도 적용되는지 실험 필요 -> possible
 
 // #define DEV
 #ifdef DEV
-#define INP_PIPE_DIR "./ipipe"
-#define OUT_PIPE_DIR "./opipe"
+  #define INP_PIPE_DIR "./ipipe"
+  #define OUT_PIPE_DIR "./opipe"
 #else
-#define INP_PIPE_DIR "/home/smdb/ipipe"
-#define OUT_PIPE_DIR "/home/smdb/opipe"
+  #define INP_PIPE_DIR "/tmp/smdb_ipipe"
+  #define OUT_PIPE_DIR "/tmp/smdb_opipe"
 #endif
 
 #define BUF_SIZE 1024
