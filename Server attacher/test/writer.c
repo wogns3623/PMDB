@@ -36,9 +36,9 @@ int open_pipe(char *path) {
 
 
 int main(int argc, char **argv) {
-  char buf[BUF_SIZE];
-  memset(buf, '\0', BUF_SIZE);
   int fd, n;
+  char buf[BUF_SIZE];
+  memset(buf, 0, BUF_SIZE);
 
   if (argc != 2) {
     err("Argment is incorrect");
@@ -55,7 +55,6 @@ int main(int argc, char **argv) {
     if ( (d=write(fd, buf, n)) != n) { 
       err("write");
     }
-    memset(buf, '\0', BUF_SIZE);
   }
   
   printf("[Writer] terminate\n");

@@ -3,4 +3,8 @@
   "./Bot/"
   ],
   "terminal.integrated.defaultProfile.windows": "Ubuntu-20.04 (WSL)",
+  "remote.WSL.fileWatcher.polling": true,
+  "files.watcherExclude": {
+      "**/.git/**": true
+  }
 }

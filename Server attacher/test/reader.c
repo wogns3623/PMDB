@@ -36,8 +36,9 @@ int open_pipe(char *path) {
 
 
 int main(int argc, char **argv) {
-  char buf[BUF_SIZE];
   int fd, n;
+  char buf[BUF_SIZE];
+  memset(buf, 0, BUF_SIZE);
 
   if (argc != 2) {
     err("Argment is incorrect");
@@ -50,7 +51,6 @@ int main(int argc, char **argv) {
 
     while (fgets(buf, BUF_SIZE, stdin) != NULL) {
       printf("[Reader] recive message: %s", buf);
-      memset(buf, '\0', n);
     }
 
     printf("[Reader] terminate\n");
@@ -63,7 +63,6 @@ int main(int argc, char **argv) {
     if ( write(STDOUT_FILENO, buf, n) != n) {
       perror("write");
     }
-    memset(buf, '\0', BUF_SIZE);
   }
 
   printf("[reader] terminate\n");
