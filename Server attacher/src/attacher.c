@@ -52,8 +52,6 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  char buf[BUF_SIZE];
-  memset(buf, '\0', sizeof(buf));
   
   int *isRunning = malloc(sizeof(int));
   *isRunning = 1;
@@ -81,7 +79,7 @@ int main(int argc, char **argv) {
   // change standard io into pipe
   dup2(fd[0], STDIN_FILENO);
   // dup2(fd[1], STDOUT_FILENO);
-  
+
   int pd[2]; // output pipe
   if (pipe(pd) == -1) {
     err("pipe1");
@@ -101,13 +99,18 @@ int main(int argc, char **argv) {
 
   pthread_create(&ioThread, NULL, ioworker, (void *)ioData);
 
-  strcpy(buf, argv[1]);
-  for (int i = 2; i < argc; i++)
-  {
-    strcat(buf, " ");
-    strcat(buf, argv[i]);
+
+  char command[BUF_SIZE];
+  memset(command, 0, sizeof(command));
+
+  strcpy(command, "stdbuf -oL");
+  for (int i = 1; i < argc; i++) {
+    strcat(command, " ");
+    strcat(command, argv[i]);
   }
-  system(buf);
+
+  system(command);
+
   pthread_join(ioThread, NULL);
 
   // cleanup
