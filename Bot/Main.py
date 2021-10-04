@@ -1,6 +1,7 @@
 import sys
 import os
 
+import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -44,6 +45,7 @@ async def load_commands(ctx, extension=None):
         app.load_extension(f"Cogs.{extension}")
         await ctx.send(f":white_check_mark: load {extension}!")
 
+
 @app.command(
     name="unload",
     help='unload certain extension.\nUsing !unload {extension} to unload {extension}.\ntype nothing or "all" will unload all extensions',
@@ -60,6 +62,7 @@ async def unload_commands(ctx, extension=None):
         await ctx.send(f"Unloading {extension}...")
         app.unload_extension(f"Cogs.{extension}")
         await ctx.send(f":white_check_mark: Unload {extension}!")
+
 
 @app.command(
     name="reload",
