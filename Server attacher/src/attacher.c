@@ -51,20 +51,14 @@ int main(int argc, char **argv) {
     err("Argument is essential");
     exit(1);
   }
-
-  
   int *isRunning = malloc(sizeof(int));
   *isRunning = 1;
 
-  setvbuf(stdout, NULL, _IONBF, 0);
-  // printfd(STDIN_FILENO, "stdin");
-  // printfd(STDOUT_FILENO, "stdout");
-
   // using dup & pipe
-  int fd[4]; // 0:input pipe, 1:output pipe, 2: stdin, 3:stdout
+  int fd[3]; // 0:input pipe, 1:output pipe, 2:stdout
+
   // backup standard io
-  // fd[2] = dup(STDIN_FILENO);
-  fd[3] = dup(STDOUT_FILENO);
+  fd[2] = dup(STDOUT_FILENO);
 
   // open named pipe
   if ( (fd[0] = open(INP_PIPE_DIR, O_RDWR)) == -1 ) {
@@ -76,16 +70,14 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  // change standard io into pipe
-  dup2(fd[0], STDIN_FILENO);
-  // dup2(fd[1], STDOUT_FILENO);
-
   int pd[2]; // output pipe
   if (pipe(pd) == -1) {
     err("pipe1");
     exit(1);
   }
-  // connect stdout to pipe input
+
+  // change standard io
+  dup2(fd[0], STDIN_FILENO);
   dup2(pd[1], STDOUT_FILENO);
 
 
@@ -95,7 +87,7 @@ int main(int argc, char **argv) {
   ioData->isRunning = isRunning;
   ioData->inputFd = pd[0];
   ioData->namedPipeFd = fd[1];
-  ioData->stdoutFd = fd[3];
+  ioData->stdoutFd = fd[2];
 
   pthread_create(&ioThread, NULL, ioworker, (void *)ioData);
 
@@ -109,7 +101,7 @@ int main(int argc, char **argv) {
     strcat(command, argv[i]);
   }
 
-  system(command);
+  system(command); 
 
   pthread_join(ioThread, NULL);
 
