@@ -8,7 +8,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
-from Utils import log
+from Utils.Logs import log
 
 load_dotenv("../")
 TOKEN = os.getenv("DISCORD_TOKEN")

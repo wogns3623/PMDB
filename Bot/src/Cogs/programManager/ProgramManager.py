@@ -3,11 +3,11 @@ import os
 import errno
 
 import asyncio
-import discord
 from discord.ext import commands
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from Utils import log, errlog, SizedQueue
+from Utils.Logs import log, errlog
+from Utils.SizedQueue import *
 
 BUF_SIZE = 4096
 LOG_SIZE = 100
