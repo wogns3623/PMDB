@@ -1,10 +1,47 @@
 {
-  "python.autoComplete.extraPaths": [
-  "./Bot/"
-  ],
   "terminal.integrated.defaultProfile.windows": "Ubuntu-20.04 (WSL)",
   "remote.WSL.fileWatcher.polling": true,
   "files.watcherExclude": {
-      "**/.git/**": true
-  }
+    "**/.git/**": true
+  },
+  "python.autoComplete.extraPaths": [
+    "./Bot/src"
+  ],
+  "python.analysis.extraPaths": [
+    "./Bot/src"
+  ],
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "googletest.failed",
+        "settings": {
+          "foreground": "#f00"
+        }
+      },
+      {
+        "scope": "googletest.passed",
+        "settings": {
+          "foreground": "#0f0"
+        }
+      },
+      {
+        "scope": "googletest.run",
+        "settings": {
+          "foreground": "#0f0"
+        }
+      }
+    ]
+  },
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "./Bot/test",
+    "-p",
+    "*_test.py"
+  ],
+  "python.testing.pytestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.unittestEnabled": false,
+  "testExplorer.showOnRun": true,
+  "pythonTestExplorer.testFramework": "unittest"
 }
