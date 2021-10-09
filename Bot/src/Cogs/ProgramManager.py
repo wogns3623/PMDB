@@ -6,7 +6,7 @@ import asyncio
 from discord.ext import commands
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from Utils.Logs import log, errlog
+from Utils.Logs import *
 from Utils.SizedQueue import *
 
 BUF_SIZE = 4096
@@ -16,7 +16,7 @@ OUT_PIPE_DIR = "/tmp/smdb_opipe"
 
 
 class ProgramManager(commands.Cog):
-    def __init__(self, app):
+    def __init__(self, app: commands.Bot):
         self.app = app
         self.logCache = SizedQueue(LOG_SIZE)
 
@@ -36,7 +36,7 @@ class ProgramManager(commands.Cog):
         pass
 
     @commands.command(name="console", help="direct console input")
-    async def console(self, ctx, *, command):
+    async def console(self, ctx: commands.Context, *, command: str):
         log(f"Send command to server:\n{command}")
         if (n := self.inputPipe.write(f"/{command}")) != len(command) + 1:
             response = "서버에 명령을 전송하는 도중 오류가 발생했습니다."
@@ -49,14 +49,14 @@ class ProgramManager(commands.Cog):
         name="log",
         help="direct console output\nRead N lines from console\n Default 1 line, Maximun 100 line",
     )
-    async def send_log(self, ctx, *, n=1):
+    async def send_log(self, ctx: commands.Context, *, n: int = 1):
         for i in range(n):
             res = self.outputPipe.readline(BUF_SIZE)
             log(f"Send message to guild:\n{res}")
             await ctx.send(res)
 
 
-def setup(app):
+def setup(app: commands.Bot):
     try:
         os.mkfifo(INP_PIPE_DIR)
         os.mkfifo(OUT_PIPE_DIR)

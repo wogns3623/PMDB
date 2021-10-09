@@ -8,7 +8,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
-from Utils.Logs import log
+from Utils.Logs import *
 
 load_dotenv("../")
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -34,7 +34,7 @@ async def on_ready():
     help='load certain extension.\nUsing !load {extension} to load {extension}.\ntype nothing or "all" will load all extensions',
     usage="!load {extension}\n!load all\n!load",
 )
-async def load_commands(ctx, extension=None):
+async def load_commands(ctx: commands.Context, extension: str = None):
     if extension is None or extension == "all":
         await ctx.send("loading all extensions...")
         for filename in os.listdir("Cogs"):
@@ -52,7 +52,7 @@ async def load_commands(ctx, extension=None):
     help='unload certain extension.\nUsing !unload {extension} to unload {extension}.\ntype nothing or "all" will unload all extensions',
     usage="!unload {extension}\n!unload all\n!unload",
 )
-async def unload_commands(ctx, extension=None):
+async def unload_commands(ctx: commands.Context, extension: str = None):
     if extension is None or extension == "all":
         await ctx.send("Unloading all extensions...")
         for filename in os.listdir("Cogs"):
@@ -70,7 +70,7 @@ async def unload_commands(ctx, extension=None):
     help='Reload certain extension.\nUsing !reload {extension} to reload {extension}.\ntype nothing or "all" will reload all extensions',
     usage="!reload {extension}\n!reload all\n!reload",
 )
-async def reload_commands(ctx, extension=None):
+async def reload_commands(ctx: commands.Context, extension: str = None):
     if extension is None or extension == "all":
         await ctx.send("Reloading all extensions...")
         for filename in os.listdir("Cogs"):
@@ -84,14 +84,9 @@ async def reload_commands(ctx, extension=None):
 
 
 @app.command(name="react", help="이모지 달기")
-async def react_to_emoji(ctx, emoji):
+async def react_to_emoji(ctx: commands.Context, emoji: str):
     log(emoji)
     await ctx.message.add_reaction(emoji)
-
-
-@app.command(name="stop", help="봇 멈추기")
-async def stopBot(ctx):
-    quit()
 
 
 app.run(TOKEN)
