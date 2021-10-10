@@ -7,54 +7,59 @@ from Utils.SizedQueue import *
 
 
 class TestSizedQueue(unittest.TestCase):
-    def test_put(self):
-        q = SizedQueue(3)
-        for i in range(3):
-            q.put(i)
+    @classmethod
+    def setUpClass(self):
+        self.queueSize = 3
+        self.q = SizedQueue(self.queueSize)
 
-        for i in range(3):
-            self.assertEqual(q[i], 2 - i)
+    def fillUpQueue(self, queue: SizedQueue, size: int):
+        for i in range(size):
+            queue.put(i)
+
+    def test_put(self):
+        self.fillUpQueue(self.q, self.queueSize)
+
+        for i in range(self.queueSize):
+            with self.subTest("check item", i=i):
+                self.assertEqual(self.q[i], 2 - i)
 
     def test_iter(self):
-        q = SizedQueue(3)
-        for i in range(3):
-            q.put(i)
+        self.fillUpQueue(self.q, self.queueSize)
 
         i = 2
-        for elem in q:
-            self.assertEqual(elem, i)
+        for elem in self.q:
+            with self.subTest("check item", i=i):
+                self.assertEqual(elem, i)
             i -= 1
 
     def test_over_put(self):
-        q = SizedQueue(3)
-        for i in range(4):
-            q.put(i)
+        self.fillUpQueue(self.q, self.queueSize + 1)
 
-        with self.assertRaises(IndexError):
-            for i in range(4):
-                self.assertEqual(q[i], 3 - i)
+        for i in range(3):
+            with self.subTest("check item", i=i):
+                self.assertEqual(self.q[i], 3 - i)
+
+        with self.subTest("check index error raised"):
+            with self.assertRaises(IndexError):
+                self.q[self.queueSize]
 
     def test_pop(self):
-        q = SizedQueue(3)
-        for i in range(3):
-            q.put(i)
+        self.fillUpQueue(self.q, self.queueSize)
 
         for i in range(3):
-            self.assertEqual(q.pop(), i)
+            with self.subTest("check item", i=i):
+                self.assertEqual(self.q.pop(), i)
 
     def test_pop_from_empty(self):
-        q = SizedQueue(1)
         with self.assertRaises(IndexError):
-            q.pop()
+            self.q.pop()
 
     def test_full(self):
-        q = SizedQueue(2)
-        q.put(0)
-        self.assertFalse(q.full())
-        q.put(1)
-        self.assertTrue(q.full())
-        q.pop()
-        self.assertFalse(q.full())
+        self.assertFalse(self.q.full())
+        self.fillUpQueue(self.q, self.queueSize)
+        self.assertTrue(self.q.full())
+        self.q.pop()
+        self.assertFalse(self.q.full())
 
 
 if __name__ == "__main__":
