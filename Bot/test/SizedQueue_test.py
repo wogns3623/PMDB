@@ -16,39 +16,38 @@ class TestSizedQueue(unittest.TestCase):
         for i in range(size):
             queue.put(i)
 
+    def weakAssertEqual(self, first: any, second: any, msg: any, **params):
+        with self.subTest(msg, **params):
+            self.assertEqual(first, second)
+
     def test_put(self):
         self.fillUpQueue(self.q, self.queueSize)
 
         for i in range(self.queueSize):
-            with self.subTest("check item", i=i):
-                self.assertEqual(self.q[i], 2 - i)
+            self.weakAssertEqual(self.q[i], 2 - i, "check item")
 
     def test_iter(self):
         self.fillUpQueue(self.q, self.queueSize)
 
         i = 2
-        for elem in self.q:
-            with self.subTest("check item", i=i):
-                self.assertEqual(elem, i)
+        for item in self.q:
+            self.weakAssertEqual(item, i, "check item")
             i -= 1
 
     def test_over_put(self):
         self.fillUpQueue(self.q, self.queueSize + 1)
 
         for i in range(3):
-            with self.subTest("check item", i=i):
-                self.assertEqual(self.q[i], 3 - i)
+            self.weakAssertEqual(self.q[i], 3 - i, "check item")
 
-        with self.subTest("check index error raised"):
-            with self.assertRaises(IndexError):
-                self.q[self.queueSize]
+        with self.assertRaises(IndexError):
+            self.q[self.queueSize]
 
     def test_pop(self):
         self.fillUpQueue(self.q, self.queueSize)
 
         for i in range(3):
-            with self.subTest("check item", i=i):
-                self.assertEqual(self.q.pop(), i)
+            self.weakAssertEqual(self.q.pop(), i, "check item")
 
     def test_pop_from_empty(self):
         with self.assertRaises(IndexError):
