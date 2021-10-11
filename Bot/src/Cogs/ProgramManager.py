@@ -3,9 +3,9 @@ import os
 import errno
 
 import asyncio
+import discord
 from discord.ext import commands
 
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from Utils.Logs import *
 from Utils.SizedQueue import *
 
@@ -16,12 +16,12 @@ OUT_PIPE_DIR = "/tmp/smdb_opipe"
 
 
 class ProgramManager(commands.Cog):
-    def __init__(self, app: commands.Bot, inputPipeDir, outputPipeDir):
-        self.app = app
+    def __init__(self, bot: commands.Bot, inputPipeDir, outputPipeDir):
+        self.bot = bot
         self.logCache = SizedQueue(LOG_SIZE)
 
-        self.inputPipe = open(inputPipeDir, "w")
-        self.outputPipe = open(outputPipeDir, "r")
+        self.inputPipe = os.open(inputPipeDir, os.O_RDWR)
+        self.outputPipe = os.open(outputPipeDir, os.O_RDWR)
 
     def cog_unload(self):
         self.inputPipe.close()
@@ -33,7 +33,6 @@ class ProgramManager(commands.Cog):
             if self.logCache.full():
                 self.logCache.pop()
             self.logCache.put(res)
-        pass
 
     @commands.command(name="console", help="direct console input")
     async def write_command(self, ctx: commands.Context, *, command: str):
@@ -56,7 +55,7 @@ class ProgramManager(commands.Cog):
             await ctx.send(res)
 
 
-def setup(app: commands.Bot):
+def setup(bot: commands.Bot):
     try:
         os.mkfifo(INP_PIPE_DIR)
         os.mkfifo(OUT_PIPE_DIR)
@@ -65,5 +64,5 @@ def setup(app: commands.Bot):
             errlog(f"mkfifo fail, {oe.errno}")
             raise commands.ExtensionFailed(f"mkfifo fail because {oe.errno}")
 
-    app.add_cog(ProgramManager(app, INP_PIPE_DIR, OUT_PIPE_DIR))
+    bot.add_cog(ProgramManager(bot, INP_PIPE_DIR, OUT_PIPE_DIR))
     return
