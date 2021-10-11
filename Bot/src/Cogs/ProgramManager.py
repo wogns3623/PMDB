@@ -16,19 +16,19 @@ OUT_PIPE_DIR = "/tmp/smdb_opipe"
 
 
 class ProgramManager(commands.Cog):
-    def __init__(self, app: commands.Bot):
+    def __init__(self, app: commands.Bot, inputPipeDir, outputPipeDir):
         self.app = app
         self.logCache = SizedQueue(LOG_SIZE)
 
-        self.inputPipe = open(INP_PIPE_DIR, "w")
-        self.outputPipe = open(OUT_PIPE_DIR, "r")
+        self.inputPipe = open(inputPipeDir, "w")
+        self.outputPipe = open(outputPipeDir, "r")
 
     def cog_unload(self):
         self.inputPipe.close()
         self.outputPipe.close()
 
     # TODO: complete function
-    async def get_log(self):
+    async def read_log(self):
         while res := await self.outputPipe.readline(BUF_SIZE):
             if self.logCache.full():
                 self.logCache.pop()
@@ -36,7 +36,7 @@ class ProgramManager(commands.Cog):
         pass
 
     @commands.command(name="console", help="direct console input")
-    async def console(self, ctx: commands.Context, *, command: str):
+    async def write_command(self, ctx: commands.Context, *, command: str):
         log(f"Send command to server:\n{command}")
         if (n := self.inputPipe.write(f"/{command}")) != len(command) + 1:
             response = "서버에 명령을 전송하는 도중 오류가 발생했습니다."
@@ -47,7 +47,7 @@ class ProgramManager(commands.Cog):
 
     @commands.command(
         name="log",
-        help="direct console output\nRead N lines from console\n Default 1 line, Maximun 100 line",
+        help=f"direct console output\nRead N lines from console\n Default 1 line, Maximun {LOG_SIZE} line",
     )
     async def send_log(self, ctx: commands.Context, *, n: int = 1):
         for i in range(n):
@@ -65,5 +65,5 @@ def setup(app: commands.Bot):
             errlog(f"mkfifo fail, {oe.errno}")
             raise commands.ExtensionFailed(f"mkfifo fail because {oe.errno}")
 
-    app.add_cog(ProgramManager(app))
+    app.add_cog(ProgramManager(app, INP_PIPE_DIR, OUT_PIPE_DIR))
     return
