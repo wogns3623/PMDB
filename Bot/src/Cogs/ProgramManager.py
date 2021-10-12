@@ -6,7 +6,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from Utils.Logs import *
+from Utils.logs import *
 from Utils.SizedQueue import *
 
 BUF_SIZE = 4096
