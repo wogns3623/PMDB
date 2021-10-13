@@ -4,21 +4,15 @@ import discord
 from discord.ext import commands
 
 from Utils.logs import *
-from Utils.config import get_config
+from config import get_config
 
-
-PROJECT_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-SOURCE_DIR = os.path.join(PROJECT_DIR, "src")
-os.environ["PROJECT_DIR"] = PROJECT_DIR
-os.environ["SOURCE_DIR"] = SOURCE_DIR
-
-config = get_config("bot")
+config = get_config()
 
 
 def get_cog_names():
     return [
         c[:-3]
-        for c in os.listdir(os.path.join(SOURCE_DIR, "Cogs"))
+        for c in os.listdir(os.path.join(config["source_dir"], "Cogs"))
         if c.endswith(".py")
     ]
 
@@ -41,7 +35,7 @@ async def on_ready():
 
 
 @bot.slash_command(
-    guild_ids=config["guild_ids"],
+    guild_ids=config["bot"]["guild_ids"],
     name="load",
     help='load certain extension.\nUsing !load {extension} to load {extension}.\ntype nothing or "all" will load all extensions',
     usage="!load {extension}\n!load all\n!load",
@@ -59,7 +53,7 @@ async def load_commands(ctx: commands.Context, extension: str = None):
 
 
 @bot.slash_command(
-    guild_ids=config["guild_ids"],
+    guild_ids=config["bot"]["guild_ids"],
     name="unload",
     help='unload certain extension.\nUsing !unload {extension} to unload {extension}.\ntype nothing or "all" will unload all extensions',
     usage="!unload {extension}\n!unload all\n!unload",
@@ -77,7 +71,7 @@ async def unload_commands(ctx: commands.Context, extension: str = None):
 
 
 @bot.slash_command(
-    guild_ids=config["guild_ids"],
+    guild_ids=config["bot"]["guild_ids"],
     name="reload",
     help='Reload certain extension.\nUsing !reload {extension} to reload {extension}.\ntype nothing or "all" will reload all extensions',
     usage="!reload {extension}\n!reload all\n!reload",
@@ -101,4 +95,4 @@ async def react_to_emoji(ctx: commands.Context, emoji: str):
 
 
 if __name__ == "__main__":
-    bot.run(config["token"])
+    bot.run(config["bot"]["token"])
