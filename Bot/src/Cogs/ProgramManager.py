@@ -21,6 +21,7 @@ class ProgramManager:
     def __init__(self, log_size: int, input_pipe_dir: str, output_pipe_dir: str):
         self.log_cache = SizedQueue(log_size)
         self.open_pipe(input_pipe_dir, output_pipe_dir)
+        self.log_regex_list = []
 
     def open_pipe(self, input_pipe_dir: str, output_pipe_dir: str):
         # somehow it work like os.O_RDWR mode
@@ -31,20 +32,35 @@ class ProgramManager:
         self.input_pipe.close()
         self.output_pipe.close()
 
-    # TODO: complete function
-    async def read_log(self):
-        os.read
-        while res := self.output_pipe.readline(BUF_SIZE):
-            if self.log_cache.full():
-                self.log_cache.pop()
-            self.log_cache.put(res)
-
-    def write_command(self, command: str):
-        log(f"Send command to server:\n{command}")
-        if (n := self.input_pipe.write(f"{command}")) != len(command) + 1:
-            errlog(f"Fail to send command to server {n}, {len(command) + 1}")
+    def write_command(self, command: str) -> bool:
+        log(f"Send command to server:\n{command}, {len(command)}")
+        n = self.input_pipe.write(command.encode())
+        if n != len(command):
+            errlog(f"Fail to send command to server {n}, {len(command)}")
             return False
         return True
+
+    # TODO: complete function
+    def read_log(self):
+        """
+        read log from attacher periodically
+        """
+        pass
+        # while res := self.output_pipe.readline(BUF_SIZE).decode("utf-8"):
+        #     if self.log_cache.full():
+        #         self.log_cache.pop()
+        #     self.log_cache.put(res)
+
+    def load_regex_list(self, regex_table: str) -> bool:
+        """load regex to evaluate important log
+
+        Args:
+            regex_table (str): regex list
+
+        Returns:
+            bool: if load success, return true
+        """
+        pass
 
 
 class ProgramManagerCog(ProgramManager, commands.Cog):
@@ -77,7 +93,7 @@ class ProgramManagerCog(ProgramManager, commands.Cog):
     async def send_log(self, ctx: commands.Context, *, n: int = 1):
         # TODO: self.log_cache를 쓰도록 변경하기
         for i in range(n):
-            res = self.output_pipe.readline(BUF_SIZE)
+            res = self.output_pipe.readline(BUF_SIZE).decode("utf-8")
             log(f"Send message to guild:\n{res}")
             await ctx.send(res)
 
@@ -85,6 +101,11 @@ class ProgramManagerCog(ProgramManager, commands.Cog):
 def setup(bot: commands.Bot):
     try:
         os.mkfifo(INP_PIPE_DIR)
+    except OSError as oe:
+        if oe.errno != errno.EEXIST:
+            errlog(f"mkfifo fail, {oe.errno}")
+            raise commands.ExtensionFailed(f"mkfifo fail because {oe.errno}")
+    try:
         os.mkfifo(OUT_PIPE_DIR)
     except OSError as oe:
         if oe.errno != errno.EEXIST:

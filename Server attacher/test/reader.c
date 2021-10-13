@@ -6,15 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #define DEV
-#ifdef DEV
-  #define INP_PIPE_DIR "./ipipe"
-  #define OUT_PIPE_DIR "./opipe"
-#else
-  #define INP_PIPE_DIR "/tmp/pmdb_ipipe"
-  #define OUT_PIPE_DIR "/tmp/pmdb_opipe"
-#endif
-
+#define TEST_INP_PIPE_DIR "/tmp/tip"
+#define TEST_OUT_PIPE_DIR "/tmp/top"
+#define INP_PIPE_DIR "/tmp/pmdb_ipipe"
+#define OUT_PIPE_DIR "/tmp/pmdb_opipe"
 #define BUF_SIZE 1024
 
 #define err(mess) {                              \
@@ -40,23 +35,30 @@ int main(int argc, char **argv) {
   char buf[BUF_SIZE];
   memset(buf, 0, BUF_SIZE);
 
-  if (argc != 2) {
+  if (argc < 2) {
     err("Argment is incorrect");
-  } else if (strcmp(argv[1], "i") == 0) {
-    fd = open_pipe(INP_PIPE_DIR);
-  } else if (strcmp(argv[1], "o") == 0) {
-    fd = open_pipe(OUT_PIPE_DIR);
-  } else if (strcmp(argv[1], "s") == 0) {
-    fd = STDIN_FILENO;
+  }
 
-    while (fgets(buf, BUF_SIZE, stdin) != NULL) {
-      printf("[Reader] recive message: %s", buf);
-    }
+  switch (argv[1][0]) {
+    case 'i':
+      if (argc == 3 && argv[2][0] == 'd') {
+        fd = open_pipe(TEST_INP_PIPE_DIR);
+      } else {
+        fd = open_pipe(INP_PIPE_DIR);
+      }
+      break;
 
-    printf("[Reader] terminate\n");
-    close(fd);
+    case 'o':
+      if (argc == 3 && argv[2][0] == 'd') {
+        fd = open_pipe(TEST_OUT_PIPE_DIR);
+      } else {
+        fd = open_pipe(OUT_PIPE_DIR);
+      }
+      break;
 
-    return 0;
+    case 's':
+      fd = STDIN_FILENO;
+      break;
   }
 
   while ( (n = read(fd, buf, BUF_SIZE) ) > 0 ) {
