@@ -6,13 +6,15 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from Utils.config import get_config
 from Utils.logs import *
 from Utils.SizedQueue import *
 
-BUF_SIZE = 4096
-LOG_SIZE = 100
-INP_PIPE_DIR = "/tmp/smdb_ipipe"
-OUT_PIPE_DIR = "/tmp/smdb_opipe"
+config = get_config("named_pipe")
+BUF_SIZE = config["buffer_size"]
+LOG_SIZE = config["log_size"]
+INP_PIPE_DIR = os.path.join(config["path"], config["input_pipe_name"])
+OUT_PIPE_DIR = os.path.join(config["path"], config["output_pipe_name"])
 
 
 class ProgramManager(commands.Cog):

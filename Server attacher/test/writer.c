@@ -11,8 +11,8 @@
   #define INP_PIPE_DIR "./ipipe"
   #define OUT_PIPE_DIR "./opipe"
 #else
-  #define INP_PIPE_DIR "/tmp/smdb_ipipe"
-  #define OUT_PIPE_DIR "/tmp/smdb_opipe"
+  #define INP_PIPE_DIR "/tmp/pmdb_ipipe"
+  #define OUT_PIPE_DIR "/tmp/pmdb_opipe"
 #endif
 
 #define BUF_SIZE 1024
