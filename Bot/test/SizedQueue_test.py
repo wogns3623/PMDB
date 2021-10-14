@@ -16,42 +16,42 @@ class TestSizedQueue(unittest.TestCase):
         self.queue_size = 3
         self.q = SizedQueue(self.queue_size)
 
-    def fillUpQueue(self, queue: SizedQueue, size: int):
-        for i in range(size):
-            queue.put(i)
-
-    def weakAssertEqual(self, first: any, second: any, msg: any, **params):
+    def expectEqual(self, first: any, second: any, msg: any, **params):
         with self.subTest(msg, **params):
             self.assertEqual(first, second)
 
+    def fill_up_queue(self, queue: SizedQueue, size: int):
+        for i in range(size):
+            queue.put(i)
+
     def test_put(self):
-        self.fillUpQueue(self.q, self.queue_size)
+        self.fill_up_queue(self.q, self.queue_size)
 
         for i in range(self.queue_size):
-            self.weakAssertEqual(self.q[i], 2 - i, "check item")
+            self.expectEqual(self.q[i], 2 - i, "check item")
 
     def test_iter(self):
-        self.fillUpQueue(self.q, self.queue_size)
+        self.fill_up_queue(self.q, self.queue_size)
 
         i = 2
         for item in self.q:
-            self.weakAssertEqual(item, i, "check item")
+            self.expectEqual(item, i, "check item")
             i -= 1
 
     def test_over_put(self):
-        self.fillUpQueue(self.q, self.queue_size + 1)
+        self.fill_up_queue(self.q, self.queue_size + 1)
 
         for i in range(3):
-            self.weakAssertEqual(self.q[i], 3 - i, "check item")
+            self.expectEqual(self.q[i], 3 - i, "check item")
 
         with self.assertRaises(IndexError):
             self.q[self.queue_size]
 
     def test_pop(self):
-        self.fillUpQueue(self.q, self.queue_size)
+        self.fill_up_queue(self.q, self.queue_size)
 
         for i in range(3):
-            self.weakAssertEqual(self.q.pop(), i, "check item")
+            self.expectEqual(self.q.pop(), i, "check item")
 
     def test_pop_from_empty(self):
         with self.assertRaises(IndexError):
@@ -59,7 +59,7 @@ class TestSizedQueue(unittest.TestCase):
 
     def test_full(self):
         self.assertFalse(self.q.full())
-        self.fillUpQueue(self.q, self.queue_size)
+        self.fill_up_queue(self.q, self.queue_size)
         self.assertTrue(self.q.full())
         self.q.pop()
         self.assertFalse(self.q.full())

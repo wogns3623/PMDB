@@ -8,6 +8,7 @@ SRC_DIR = os.path.join(
 sys.path.append(SRC_DIR)
 
 from Cogs.ProgramManager import *
+from Utils.logs import *
 
 LOG_SIZE = 5
 TEST_INP_PIPE_DIR = "/tmp/tip"
@@ -21,13 +22,13 @@ class TestProgramManagerCog(unittest.TestCase):
         except OSError as oe:
             if oe.errno != errno.EEXIST:
                 errlog(f"mkfifo fail, {oe.errno}")
-                raise commands.ExtensionFailed(f"mkfifo fail because {oe.errno}")
+                raise oe
         try:
             os.mkfifo(TEST_OUT_PIPE_DIR)
         except OSError as oe:
             if oe.errno != errno.EEXIST:
                 errlog(f"mkfifo fail, {oe.errno}")
-                raise commands.ExtensionFailed(f"mkfifo fail because {oe.errno}")
+                raise oe
 
         self.manager = ProgramManager(LOG_SIZE, TEST_INP_PIPE_DIR, TEST_OUT_PIPE_DIR)
         self.ipipe = open(TEST_INP_PIPE_DIR, "r+b", buffering=0)
@@ -41,7 +42,7 @@ class TestProgramManagerCog(unittest.TestCase):
         os.unlink(TEST_INP_PIPE_DIR)
         os.unlink(TEST_OUT_PIPE_DIR)
 
-    def weakAssertEqual(self, first: any, second: any, msg: any, **params):
+    def expectEqual(self, first: any, second: any, msg: any, **params):
         with self.subTest(msg, **params):
             self.assertEqual(first, second)
 
@@ -56,7 +57,7 @@ class TestProgramManagerCog(unittest.TestCase):
             self.opipe.write(s.encode("utf-8"))
 
         for i in range(len(strings)):
-            self.weakAssertEqual(
+            self.expectEqual(
                 self.manager.log_cache[len(strings) - 1 - i],
                 strings[i],
                 "log cache must be equal to reversed string list",
@@ -84,7 +85,7 @@ class TestProgramManagerCog(unittest.TestCase):
             self.opipe.write(s.encode("utf-8"))
 
         for i in range(len(strings)):
-            self.weakAssertEqual(
+            self.expectEqual(
                 self.manager.log_cache[len(strings) - 1 - i],
                 strings[i],
                 "log cache must be equal to reversed string list",
