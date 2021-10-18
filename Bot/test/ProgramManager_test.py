@@ -8,7 +8,6 @@ SRC_DIR = os.path.join(
 sys.path.append(SRC_DIR)
 
 from Cogs.ProgramManager import *
-from Utils.logs import *
 
 LOG_SIZE = 5
 TEST_INP_PIPE_DIR = "/tmp/tip"
@@ -21,13 +20,13 @@ class TestProgramManagerCog(unittest.TestCase):
             os.mkfifo(TEST_INP_PIPE_DIR)
         except OSError as oe:
             if oe.errno != errno.EEXIST:
-                errlog(f"mkfifo fail, {oe.errno}")
+                print(f"mkfifo fail, {oe.errno}", file=sys.stderr)
                 raise oe
         try:
             os.mkfifo(TEST_OUT_PIPE_DIR)
         except OSError as oe:
             if oe.errno != errno.EEXIST:
-                errlog(f"mkfifo fail, {oe.errno}")
+                print(f"mkfifo fail, {oe.errno}", file=sys.stderr)
                 raise oe
 
         self.manager = ProgramManager(LOG_SIZE, TEST_INP_PIPE_DIR, TEST_OUT_PIPE_DIR)
@@ -53,44 +52,6 @@ class TestProgramManagerCog(unittest.TestCase):
 
     def test_read_from_opipe(self):
         strings = ["abcdefg\n", "hello world\n", "안녕하세요\n"]
-        for s in strings:
-            self.opipe.write(s.encode("utf-8"))
-
-        for i in range(len(strings)):
-            self.expectEqual(
-                self.manager.log_cache[len(strings) - 1 - i],
-                strings[i],
-                "log cache must be equal to reversed string list",
-            )
-
-    def test_load_regex_list(self):
-        self.assertTrue(
-            self.manager.load_regex_list(
-                os.path.abspath(
-                    os.path.join(os.path.dirname(__file__), "../regex/test_regex.yml")
-                )
-            )
-        )
-        self.assertListEqual(
-            self.manager.regex_list,
-            [
-                r"^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Fatal\])",
-                r"^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Fatal\])",
-            ],
-        )
-
-    def test_eval_important_logs(self):
-        self.manager.load_regex_list(
-            os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "../regex/test_regex.yml")
-            )
-        )
-
-        strings = [
-            "[11:23:31] [Test/Fatal] Error!\n",
-            "[11:23:31] [Test/Log] hello world\n",
-            "[11:23:31] [Test/Message] <wogns> 안녕하세요\n",
-        ]
         for s in strings:
             self.opipe.write(s.encode("utf-8"))
 
