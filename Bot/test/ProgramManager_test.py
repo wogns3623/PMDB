@@ -66,20 +66,30 @@ class TestProgramManagerCog(unittest.TestCase):
     def test_load_regex_list(self):
         self.assertTrue(
             self.manager.load_regex_list(
-                os.path.join(os.path.dirname(__file__), "test_regex.yml")
+                os.path.abspath(
+                    os.path.join(os.path.dirname(__file__), "../regex/test_regex.yml")
+                )
             )
         )
         self.assertListEqual(
-            self.manager.load_regex_list, ["\\[Test/Fatal\\]", "\\[Test/Message\\]"]
+            self.manager.regex_list,
+            [
+                r"^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Fatal\])",
+                r"^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Fatal\])",
+            ],
         )
 
     def test_eval_important_logs(self):
-        self.manager.load_regex_list("Test")
+        self.manager.load_regex_list(
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "../regex/test_regex.yml")
+            )
+        )
 
         strings = [
             "[11:23:31] [Test/Fatal] Error!\n",
             "[11:23:31] [Test/Log] hello world\n",
-            "[11:23:31] [Test/Message] 안녕하세요\n",
+            "[11:23:31] [Test/Message] <wogns> 안녕하세요\n",
         ]
         for s in strings:
             self.opipe.write(s.encode("utf-8"))

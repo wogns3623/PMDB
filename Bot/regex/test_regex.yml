@@ -1,0 +1,11 @@
+# type is integer between 0~3
+# 0 is ignored(not stored in log queue)
+# 1 is no specific action(not used)
+# 2 is important
+# 3 is always sent immediately
+regex:
+  - type: 3
+    expression: ^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Fatal\])
+
+  - type: 3
+    expression: ^(\[\d{2}:\d{2}:\d{2}\] \[\w+/Message\])
