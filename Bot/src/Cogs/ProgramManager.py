@@ -2,15 +2,18 @@ import sys
 import os
 import errno
 
+import yaml
 import asyncio
 import discord
 from discord.ext import commands
 
-from config import get_config
+from config import ConfigManager
 from Utils.logs import *
 from Utils.SizedQueue import *
+from Utils.LogClassifier import *
 
-config = get_config("named_pipe")
+config = ConfigManager.get_config("named_pipe")
+
 BUF_SIZE = config["buffer_size"]
 LOG_SIZE = config["log_size"]
 INP_PIPE_DIR = os.path.join(config["path"], config["input_pipe_name"])
@@ -21,7 +24,7 @@ class ProgramManager:
     def __init__(self, log_size: int, input_pipe_dir: str, output_pipe_dir: str):
         self.log_cache = SizedQueue(log_size)
         self.open_pipe(input_pipe_dir, output_pipe_dir)
-        self.log_regex_list = []
+        self.classifier = None
 
     def open_pipe(self, input_pipe_dir: str, output_pipe_dir: str):
         # somehow it work like os.O_RDWR mode
@@ -32,7 +35,26 @@ class ProgramManager:
         self.input_pipe.close()
         self.output_pipe.close()
 
+    def set_classifier(self, path: str) -> bool:
+        """Set classifier to evaluate important log
+
+        Args:
+            regex_path (str): classifier regex path
+
+        Returns:
+            bool: if load success, return true
+        """
+        self.classifier = LogClassifier(path)
+
     def write_command(self, command: str) -> bool:
+        """Send command to server
+
+        Args:
+            command (str): command to send
+
+        Returns:
+            bool: if send success, return true
+        """
         log(f"Send command to server:\n{command}, {len(command)}")
         n = self.input_pipe.write(command.encode())
         if n != len(command):
@@ -42,25 +64,12 @@ class ProgramManager:
 
     # TODO: complete function
     def read_log(self):
-        """
-        read log from attacher periodically
-        """
+        """Read log from attacher periodically"""
         pass
         # while res := self.output_pipe.readline(BUF_SIZE).decode("utf-8"):
         #     if self.log_cache.full():
         #         self.log_cache.pop()
         #     self.log_cache.put(res)
-
-    def load_regex_list(self, regex_table: str) -> bool:
-        """load regex to evaluate important log
-
-        Args:
-            regex_table (str): regex list
-
-        Returns:
-            bool: if load success, return true
-        """
-        pass
 
 
 class ProgramManagerCog(ProgramManager, commands.Cog):
@@ -72,7 +81,8 @@ class ProgramManagerCog(ProgramManager, commands.Cog):
         output_pipe_dir: str,
     ):
         self.bot = bot
-        ProgramManager.__init__(log_size, input_pipe_dir, output_pipe_dir)
+        self.log_channel = None
+        ProgramManager.__init__(self, log_size, input_pipe_dir, output_pipe_dir)
 
     def cog_unload(self):
         self.close_pipe()
@@ -88,7 +98,7 @@ class ProgramManagerCog(ProgramManager, commands.Cog):
 
     @commands.command(
         name="log",
-        help=f"direct console output\nRead N lines from console\n Default 1 line, Maximun {LOG_SIZE} line",
+        help=f"Direct console output\nRead N lines from console\n Default 1 line, Maximun {LOG_SIZE} line",
     )
     async def send_log(self, ctx: commands.Context, *, n: int = 1):
         # TODO: self.log_cache를 쓰도록 변경하기
@@ -96,6 +106,14 @@ class ProgramManagerCog(ProgramManager, commands.Cog):
             res = self.output_pipe.readline(BUF_SIZE).decode("utf-8")
             log(f"Send message to guild:\n{res}")
             await ctx.send(res)
+
+    @commands.command(
+        name="setLogChannel",
+        help=f"Set the channel to send important logs to",
+    )
+    async def set_log_channel(self, ctx: commands.Context):
+        ctx.send(ctx.message.channel.guild.id)
+        # self.log_channel = ctx.message.channel
 
 
 def setup(bot: commands.Bot):
