@@ -1,0 +1,8 @@
+regex:
+  - type: 2
+    name: advancement
+    expression: "\[Server thread/INFO\] \[net.minecraft.server.dedicated.DedicatedServer.+: ([\w\d]+) (has made the advancement .+)"
+
+  - type: 2
+    name: "chat"
+    expression: "\[Server thread/INFO\] \[net.minecraft.server.dedicated.DedicatedServer.+: <([\w\d]+)> (.+)"

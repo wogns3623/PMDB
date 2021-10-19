@@ -10,7 +10,7 @@ from Utils.logs import *
 from config import ConfigManager, SOURCE_DIR
 
 cm = ConfigManager()
-config = cm.get_config("bot")
+config = cm.config["bot"]
 
 
 def get_cog_names():
