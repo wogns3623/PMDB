@@ -14,17 +14,16 @@ def _load_config():
         return config
 
 
-class ConfigManager:
-    _config = _load_config()
+class ConfigManager(Singleton):
+    def __init__(self):
+        self._config = _load_config()
 
-    @classmethod
-    def get_config(cls, key: str = None):
+    def get_config(self, key: str = None):
         if key is not None:
-            return cls._config[key]
-        return cls._config
+            return self._config[key]
+        return self._config
 
-    @classmethod
-    def save_config(cls, config: Dict, key: str = None):
+    def save_config(self, config: Dict, key: str = None):
         with open(os.path.join(PROJECT_DIR, "config.yml"), "w") as config_file:
-            cls._config[key] = config
-            yaml.dump(cls._config, config_file)
+            self._config[key] = config
+            yaml.dump(self._config, config_file)

@@ -12,7 +12,8 @@ from Utils.logs import *
 from Utils.SizedQueue import *
 from Utils.LogClassifier import *
 
-config = ConfigManager.get_config("named_pipe")
+cm = ConfigManager()
+config = cm.get_config("named_pipe")
 
 BUF_SIZE = config["buffer_size"]
 LOG_SIZE = config["log_size"]

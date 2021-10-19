@@ -9,7 +9,8 @@ from discord.app import InteractionContext
 from Utils.logs import *
 from config import ConfigManager, SOURCE_DIR
 
-config = ConfigManager.get_config("bot")
+cm = ConfigManager()
+config = cm.get_config("bot")
 
 
 def get_cog_names():
